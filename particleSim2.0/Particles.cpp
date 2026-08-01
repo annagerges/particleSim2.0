@@ -14,6 +14,7 @@ const int width = 800 / 3;
 //updates position using euclidean approximation
 void updatePos(vector<Particles>& part, Spring& s) {
 	for (int index = 0; index < part.size(); index++) {
+		//changes accelaration because the ball is on the spring
 		if (part[index].y <= s.getHeight()) {
 			part[index].a = (((s.getK() / part[index].mass) * -1) * (part[index].y - s.getHeight())) - 9.8;
 
@@ -131,33 +132,6 @@ void particleCollis(vector<Particles*>& grid) {
 					grid[index]->vx *= -1;
 				}
 			}
-		}
-	}
-}
-
-void newVelo(Particles &part, double direc, double ek) {
-	part.vy = direc * sqrt((2 * ek) / part.mass);
-}
-
-void veloManagment(vector<Particles>& part, Spring& s) {
-	double dx;
-	for (int index = 0; index < part.size(); index++) {
-		part[index].ep = part[index].mass * 9.8 * part[index].y;
-	
-		if (part[index].y <= s.getHeight()) {
-			double dx = s.getHeight() - part[index].y;
-			part[index].ep += 0.5 * s.getK() * pow(dx, 2);
-
-			part[index].ek = part[index].em - part[index].ep;
-
-			if (part[index].ek < 0)
-			{
-				part[index].ek = 0;
-			}
-
-			double direction = (part[index].vy >= 0) ? 1.0 : -1.0;
-
-			newVelo(part[index], direction, part[index].ek);
 		}
 	}
 }

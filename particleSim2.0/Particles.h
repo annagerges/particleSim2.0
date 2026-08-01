@@ -17,9 +17,10 @@ struct Particles {
 
 };
 
+
 class Spring {
 private:
-	double k = 10;
+	double k;
 	double h = 6;
 
 public:
@@ -42,8 +43,6 @@ void updatePos(std::vector<Particles>&, Spring&);
 void wallCollis(std::vector<Particles>&);
 void clearAndFix(std::vector<Particles>&, std::vector<std::vector<std::vector<Particles*>>>&);
 void particleCollis(std::vector<Particles*>&);
-void newVelo(Particles&, double, double);
-void veloManagment(std::vector<Particles>&, Spring&);
 void calcEM(std::vector<Particles>&);
 
 #endif

@@ -74,7 +74,8 @@ int main()
         grid[row][col].push_back(&particles[index]);
     }
 
-    s.setK(0.5 + (nP * 9.8*particles[0].mass));
+    //set k assuming all of the particles are statically laying on the spring and compressing 0.2m. Mulitply by 5 so that the particles are springy.
+    s.setK(((nP*9.8*particles[0].mass)/0.2)*4);
 
     //sets accumulator to 0
     accumulator = 0;
@@ -99,21 +100,21 @@ int main()
         accumulator += frameDur.count();
 
         while (accumulator >= dt) {
-            veloManagment(particles, s);
             
-            //update position, wall collision checks, and clear and update the grid
+             //update position, wall collision checks, and clear and update the grid
              updatePos(particles, s);
-            wallCollis(particles);
-            clearAndFix(particles, grid);
+             cout << particles[0].y<<endl;
+             wallCollis(particles);
+             clearAndFix(particles, grid);
 
-            for (int row = 0; row < grid.size(); row++) {
-                for (int col = 0; col < grid[0].size(); col++) {
-                    //if a grid cell has more then 1 particle (is active) then check if they are colliding
-                    if (grid[row][col].size() > 1) {
-                        particleCollis(grid[row][col]);
-                    }
-                }
-            }
+             for (int row = 0; row < grid.size(); row++) {
+                 for (int col = 0; col < grid[0].size(); col++) {
+                     //if a grid cell has more then 1 particle (is active) then check if they are colliding
+                     if (grid[row][col].size() > 1) {
+                         particleCollis(grid[row][col]);
+                     }
+                 }
+             }
 
             //decrement accumulator by the timestep
             accumulator -= dt;

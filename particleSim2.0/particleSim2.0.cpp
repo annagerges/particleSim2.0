@@ -1,10 +1,11 @@
 // Executes particle simulation where a user defined amount of particles (10-100) move around indefinitely. 
-// Uses struct vectors and struct pointer vectors to store objects and use grid based programming. Euclidean approximation is used to simulate movement over a fixed time step.
+// Uses struct vectors and struct pointer vectors to store partects and use grid based programming. Euclidean approximation is used to simulate movement over a fixed time step.
 
 #include <iostream>
 #include <vector>
 #include <chrono>
 #include <random>
+#include<limits>
 #include "Particles.h"
 
 using namespace std;
@@ -17,6 +18,7 @@ int main()
 {
     int nP, row, col;
     double accumulator;
+    Spring s;
 
 
     random_device myEngine;
@@ -29,6 +31,7 @@ int main()
         cout << "\nInvalid Input. Enter a valid amount: ";
         cin >> nP;
     }
+
 
     //creates a vector of particles with the valid size the user specified to keep track of every particle
     vector<Particles>particles(nP);
@@ -71,11 +74,15 @@ int main()
         grid[row][col].push_back(&particles[index]);
     }
 
+    s.setK(0.5 + (nP * 9.8*particles[0].mass));
+
     //sets accumulator to 0
     accumulator = 0;
 
     //start frame timer
     auto previousTime = chrono::high_resolution_clock::now();
+
+    calcEM(particles);
 
     //infinite loop
     while (true) {
@@ -92,8 +99,10 @@ int main()
         accumulator += frameDur.count();
 
         while (accumulator >= dt) {
+            veloManagment(particles, s);
+            
             //update position, wall collision checks, and clear and update the grid
-            updatePos(particles);
+             updatePos(particles, s);
             wallCollis(particles);
             clearAndFix(particles, grid);
 
@@ -105,6 +114,7 @@ int main()
                     }
                 }
             }
+
             //decrement accumulator by the timestep
             accumulator -= dt;
         }

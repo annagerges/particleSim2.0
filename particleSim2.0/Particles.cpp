@@ -1,0 +1,172 @@
+//cpp file for the program's functions
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <limits>
+#include "Particles.h"
+
+using namespace std;
+
+const double dt = 0.1;
+const int width = 800 / 3;
+
+//updates position using euclidean approximation
+void updatePos(vector<Particles>& part, Spring& s) {
+	for (int index = 0; index < part.size(); index++) {
+		if (part[index].y <= s.getHeight()) {
+			part[index].a = (((s.getK() / part[index].mass) * -1) * (part[index].y - s.getHeight())) - 9.8;
+
+		}
+		else {
+			part[index].a = -9.8;
+		}
+		part[index].vy += part[index].a * 0.01;
+		part[index].y += part[index].vy * 0.01;
+		part[index].x += part[index].vx * 0.01;
+	}
+}
+
+//checks if any of the particles collided with the wall
+void  wallCollis(vector<Particles>& part) {
+	for (int index = 0; index < part.size(); index++) {
+		//if the particle is beyond or colliding with the left edge: reverse its x velocity and change its x position to 1
+		if (part[index].x <= 0) {
+			part[index].vx *= -1;
+			part[index].x = 1;
+
+			//if the particle's vx is under 30: increase its x velocity 0.1
+			if (part[index].vx < 30) {
+				part[index].vx += 0.1;
+			}
+		}
+
+		//if the particle is beyond or colliding with the right edge: reverse its x velocity and change its x position to 799
+		else if (part[index].x >= 800) {
+			part[index].vx *= -1;
+			part[index].x = 799;
+		}
+
+		//if the particle is beyond or colliding with the upper edge: reverse its y velocity and change its y position to 799
+		if (part[index].y >= 800) {
+			part[index].vy *= -1;
+			part[index].y = 799;
+		}
+	}
+}
+
+//clears and places the updated particles into their correct grid positions
+void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& grid) {
+	int row, col;
+
+	//clear the grid cells
+	for (int row = 0; row < 3; row++) {
+		for (int col = 0; col < 3; col++) {
+			grid[row][col].clear();
+		}
+	}
+
+	//assign every particle a grid cell based on its position
+	for (int index = 0; index < part.size(); index++) {
+		row = part[index].y / width;
+		col = part[index].x / width;
+
+		//safeguards to make sure that every particle gets assigned a valid cell 
+
+		if (row < 0) {
+			row = 0;
+		}
+		if (row > 2) {
+			row = 2;
+		}
+		if (col < 0) {
+			col = 0;
+		}
+		if (col > 2) {
+			col = 2;
+		}
+
+		//add the particle into that cell
+		grid[row][col].push_back(&part[index]);
+	}
+}
+
+//checks if particles collided with each other by passing an active grid cell and looping through its particles
+void particleCollis(vector<Particles*>& grid) {
+	double d, dx, dy;
+
+	for (int start = 0; start < grid.size() - 1; start++) {
+		for (int index = start + 1; index < grid.size(); index++) {
+
+			//computes distance between both particles
+			d = sqrt(pow(grid[index]->x - grid[start]->x, 2) + pow(grid[index]->y - grid[start]->y, 2));
+
+			//if distance is less than the particle radius * 2: then they collided
+			if (d < 10) {
+
+				//compute dy and dx to figure out if they collided on x or y axis
+				dy = abs(grid[index]->y - grid[start]->y);
+				dx = abs(grid[index]->x - grid[start]->x);
+
+				//if they collided on y axis
+				if (dx >= dy) {
+					//if the second particle is higher then the first one
+					if (grid[index]->y >= grid[start]->y) {
+
+						//increase the lower particle's vy by 0.1 if its vy is less than 30, reverse vy of the higher one and slow it down on y axis by 0.1
+						grid[start]->vy += (grid[start]->vy < 30) ? 0.1 : 0;
+						grid[index]->vy *= -1;
+						grid[index]->vy -= 0.1;
+					}
+					else {
+						//increase the lower particle's vy by 0.1 if its vy is less than 30, reverse vy of the higher one and slow it down on y axis by 0.1
+						grid[index]->vy += (grid[index]->vy < 30) ? 0.1 : 0;
+						grid[start]->vy *= -1;
+						grid[start]->vy -= 0.1;
+					}
+				}
+				// if it collided on the x axis: reverse the vx of both particles
+				else {
+					grid[start]->vx *= -1;
+					grid[index]->vx *= -1;
+				}
+			}
+		}
+	}
+}
+
+void newVelo(Particles &part, double direc, double ek) {
+	part.vy = direc * sqrt((2 * ek) / part.mass);
+}
+
+void veloManagment(vector<Particles>& part, Spring& s) {
+	double dx;
+	for (int index = 0; index < part.size(); index++) {
+		part[index].ep = part[index].mass * 9.8 * part[index].y;
+	
+		if (part[index].y <= s.getHeight()) {
+			double dx = s.getHeight() - part[index].y;
+			part[index].ep += 0.5 * s.getK() * pow(dx, 2);
+
+			part[index].ek = part[index].em - part[index].ep;
+
+			if (part[index].ek < 0)
+			{
+				part[index].ek = 0;
+			}
+
+			double direction = (part[index].vy >= 0) ? 1.0 : -1.0;
+
+			newVelo(part[index], direction, part[index].ek);
+		}
+	}
+}
+
+void calcEM(vector<Particles>& part) {
+	for (int index = 0; index < part.size(); index++) {
+		part[index].ek = 0.5 * part[index].mass * pow(part[index].vy, 2);
+		part[index].ep = part[index].mass * 9.8 * part[index].y;
+		part[index].em = part[index].ep + part[index].ek;
+	}
+}
+

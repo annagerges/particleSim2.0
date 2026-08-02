@@ -4,14 +4,6 @@
 A particle simulation engine that uses gravitational dynamics, spring forces, and collision detection using spatial partitioning for efficient computation. The system currently models **10–100 particles** interacting on a 2D grid with energy conservation validation and adaptive timestep processing.
 
 ##Physics Model
-### Energy Conservation
-
-Each particle maintains three energy components:
-- **Gravitational Potential Energy**: `EP = mgy`
-- **Kinetic Energy**: `EK = ½mv²`
-- **Total Mechanical Energy**: `EM = EP + EK`
-
-Energy is conserved throughout the simulation except at collision boundaries (wall and particle collisions apply damping).
 
 ### Forces and Acceleration
 
@@ -98,12 +90,8 @@ Ensures consistent physics independent of frame rate or system load.
 | `wallCollis()` | `void(vector<Particles>&)` | Handle boundary collisions |
 | `particleCollis()` | `void(vector<Particles*>&)` | Detect and resolve particle–particle collisions within grid cells with more than 1 particle |
 | `clearAndFix()` | `void(vector<Particles>&, vector<vector<vector<Particles*>>>&)` | Rebuild spatial grid after position updates |
-| `calcEM()` | `void(vector<Particles>&)` | Initialize total energy for each particle before the first position update|
 
 ## Validation
-
-### Energy Conservation Test
-Track `EM` before and after collision cycles. Gravitational and elastic potential should sum to total mechanical energy (minus collision damping).
 
 ### Collision Response Test
 - Drop particles onto the spring; verify bounces match energy dissipation.
@@ -119,7 +107,7 @@ g++ -std=c++17 -O2 particeSim2.0.cpp Particles.cpp -o particle_sim
 When prompted, enter particle count (10–100). The simulation runs indefinitely.
 
 ## Future Enhancements
-
+-**Optimization**: Handle 100-1000 particles effectively.
 - **CSV Export**: Log position, velocity, and energy state to file for post-processing analysis.
 - **Rendering**: Visualize particles and grid using OpenGL or SDL2.
 - **RK4 Integration**: Replace Euler method with 4th-order Runge–Kutta for higher accuracy.

@@ -1,11 +1,9 @@
-# Unified Multi-Physics Particle System
+# Particle System
 
 ## Overview
-A real-time particle simulation engine that integrates gravitational dynamics, spring forces, and collision detection using spatial partitioning for efficient computation. The system models **10–100 particles** interacting on a 2D grid with energy conservation validation and adaptive timestep processing.
+A particle simulation engine that uses gravitational dynamics, spring forces, and collision detection using spatial partitioning for efficient computation. The system currently models **10–100 particles** interacting on a 2D grid with energy conservation validation and adaptive timestep processing.
 
-## Physics Model
-
-
+##Physics Model
 ### Energy Conservation
 
 Each particle maintains three energy components:
@@ -17,7 +15,7 @@ Energy is conserved throughout the simulation except at collision boundaries (wa
 
 ### Forces and Acceleration
 
-**Gravitational Force (always active)**:
+**Gravitational Force: for particles in freefall or flying upwards**:
 ```
 a = -g = -9.8 m/s²
 ```
@@ -37,15 +35,15 @@ Multiplied by 4 for strength and springiness
 
 ### Numerical Integration
 
-**Euclidean Approximation** (forward Euler method) with fixed timestep `dt = 0.1 s`:
+**Euclidean Approximation** with fixed timestep `dt = 0.1 s`:
 ```
 v(t+dt) = v(t) + a(t) × dt
 x(t+dt) = x(t) + v(t) × dt
 ```
 
-Updates apply at fine granularity (`0.01 s` intervals) within each frame for stability.
+Updates apply at (`0.01 s` intervals) within each frame for stability.
 
-## Technical Architecture
+## Program Architecture
 
 ### Spatial Partitioning
 
@@ -54,7 +52,7 @@ The simulation uses a **3×3 grid** to reduce collision detection from O(n²) to
 - **Collision checks**: Only particles in the same grid cell are tested
 - **Grid update**: Full rebuild each timestep via `clearAndFix()`
 
-This optimization scales efficiently to 100+ particles without performance degradation.
+This optimization scales efficiently to 100 particles without performance degradation.
 
 ### Collision Detection
 
@@ -69,7 +67,7 @@ This optimization scales efficiently to 100+ particles without performance degra
 #### Wall Collisions
 - **Bounds**: `[1, 799]` × `[1, 799]`
 - **Response**: Reverse normal velocity component, clamp position to boundary
-- **Energy boost**: Left wall adds `+0.1` to `vx` (if `vx < 30`) to maintain motion
+- **Energy boost**: Left wall adds `+0.1` to `vx` (if `vx < 30`) to maintain motion without overloading speed.
 
 ### Frame Timing
 
@@ -108,7 +106,7 @@ Ensures consistent physics independent of frame rate or system load.
 Track `EM` before and after collision cycles. Gravitational and elastic potential should sum to total mechanical energy (minus collision damping).
 
 ### Collision Response Test
-- Drop particles onto the spring; verify bouncing amplitude matches energy dissipation.
+- Drop particles onto the spring; verify bounces match energy dissipation.
 - Verify particle–particle collisions conserve momentum along collision axis.
 
 ### Spatial Partitioning Test

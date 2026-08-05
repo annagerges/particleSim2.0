@@ -91,28 +91,15 @@ Ensures consistent physics independent of frame rate or system load.
 | `particleCollis()` | `void(vector<Particles*>&)` | Detect and resolve particle–particle collisions within grid cells with more than 1 particle |
 | `clearAndFix()` | `void(vector<Particles>&, vector<vector<vector<Particles*>>>&)` | Rebuild spatial grid after position updates |
 
-## Validation
-
-### Collision Response Test
-- Drop particles onto the spring; verify bounces match energy dissipation.
-- Verify particle–particle collisions conserve momentum along collision axis.
-
-### Spatial Partitioning Test
-Compare O(n²) brute-force collision detection against grid-based approach; verify identical collision results with 10x speed up to 100 particles.
-```bash
-g++ -std=c++17 -O2 particeSim2.0.cpp Particles.cpp -o particle_sim
-./particle_sim
-```
-
-When prompted, enter particle count (10–100). The simulation runs indefinitely.
 
 ## Future Enhancements
--**Optimization**: Handle 100-1000 particles effectively.
+-**Optimization**: Handle 100-1000 particles effectively using a quadtree or hashgrid.
 - **CSV Export**: Log position, velocity, and energy state to file for post-processing analysis.
 - **Rendering**: Visualize particles and grid using OpenGL or SDL2.
 - **RK4 Integration**: Replace Euler method with 4th-order Runge–Kutta for higher accuracy.
 - **Damping Coefficient**: Make collision damping configurable; validate energy dissipation against expected mechanical loss.
 - **Spring Stiffness Tuning**: Expose `k` scaling factor as command-line parameter.
+- **Benchmarking and validation**
 
 ---
 

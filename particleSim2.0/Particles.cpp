@@ -8,7 +8,7 @@
 
 using namespace std;
 
-const double dt = 0.1;
+const float dt = 0.1;
 const int width = 800 / 3;
 
 //updates position using euclidean approximation
@@ -94,7 +94,7 @@ void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& gr
 
 //checks if particles collided with each other by passing an active grid cell and looping through its particles
 void particleCollis(vector<Particles*>& grid) {
-	double d, dx, dy;
+	float d, dx, dy;
 
 	for (int start = 0; start < grid.size() - 1; start++) {
 		for (int index = start + 1; index < grid.size(); index++) {
@@ -133,14 +133,6 @@ void particleCollis(vector<Particles*>& grid) {
 				}
 			}
 		}
-	}
-}
-
-void calcEM(vector<Particles>& part) {
-	for (int index = 0; index < part.size(); index++) {
-		part[index].ek = 0.5 * part[index].mass * pow(part[index].vy, 2);
-		part[index].ep = part[index].mass * 9.8 * part[index].y;
-		part[index].em = part[index].ep + part[index].ek;
 	}
 }
 

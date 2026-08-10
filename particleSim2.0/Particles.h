@@ -5,34 +5,33 @@
 
 //Particle struct
 struct Particles {
-	double vx = 0;
-	double vy;
-	double x;
-	double y;
-	double a = -9.8;
-	double ep;
-	double ek;
-	double em;
-	double mass = 0.5;
-
+	float vx = 0;
+	float vy;
+	float x;
+	float y;
+	float a = -9.8;
+	float ep;
+	float ek;
+	float em;
+	float mass = 0.5;
 };
 
 
 class Spring {
 private:
-	double k;
-	double h = 6;
+	float k;
+	float h = 6;
 
 public:
-	double getK() const {
+	float getK() const {
 		return k;
 	}
 
-	void setK(double num) {
+	void setK(float num) {
 		k = num;
 	}
 
-	double getHeight() const {
+	float getHeight() const {
 		return h;
 	}
 
@@ -42,8 +41,7 @@ public:
 void updatePos(std::vector<Particles>&, Spring&);
 void wallCollis(std::vector<Particles>&);
 void clearAndFix(std::vector<Particles>&, std::vector<std::vector<std::vector<Particles*>>>&);
-void particleCollis(std::vector<Particles*>&);
-void calcEM(std::vector<Particles>&);
+void particleCollis(std::vector<Particles*>&
 
 #endif
 

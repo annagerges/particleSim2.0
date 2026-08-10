@@ -3,17 +3,101 @@
 
 #include<vector>
 
-//Particle struct
-struct Particles {
-	float vx = 0;
-	float vy;
-	float x;
-	float y;
-	float a = -9.8;
-	float ep;
-	float ek;
-	float em;
-	float mass = 0.5;
+//Particle class to keep track of every particle's position, velocity, acceleration, and energy
+class Particles {
+	private:
+		float vx = 0;
+		float vy;
+		float x;
+		float y;
+		float a = -9.8;
+		float ep;
+		float ek;
+		float em;
+		float mass = 0.5;
+
+	public:
+
+		//setter and getter vx
+		void setVx(float num) {
+			vx = num;
+		}
+
+		float getVx() const {
+			return vx;
+		}
+
+		//setter and getter vy
+		void setVy(float num) {
+			vy = num;
+		}
+
+		float getVy() const {
+			return vy;
+		}
+
+		//setter and getter x and y
+		void setX(float num) {
+			x = num;
+		}
+
+		float getX() const {
+			return x;
+		}
+
+		void setY(float num) {
+			y = num;
+		}
+
+		float getY() const {
+			return y;
+		}
+
+		//setter and getter accelaration
+		void setA(float num) {
+			a = num;
+		}
+
+		float getA() const {
+			return a;
+		}
+
+		//setter and getter mass (for when user can dynamically customize mass)
+		void setMass(float num) {
+			mass = num;
+		}
+
+		float getMass() const {
+			return mass;
+		}
+
+		//setter and getter ep
+		void setEp(float num) {
+			ep = num;
+		}
+
+		float getEp() const {
+			return ep;
+		}
+
+		//setter and getter ek
+		void setEk(float num) {
+			ek = num;
+		}
+
+		float getEk() const {
+			return ek;
+		}
+
+		//setter and getter em
+		void setEm(float num) {
+			em = num;
+		}
+
+		float getEm() const {
+			return em;
+		}
+
 };
 
 
@@ -41,7 +125,7 @@ public:
 void updatePos(std::vector<Particles>&, Spring&);
 void wallCollis(std::vector<Particles>&);
 void clearAndFix(std::vector<Particles>&, std::vector<std::vector<std::vector<Particles*>>>&);
-void particleCollis(std::vector<Particles*>&
+void particleCollis(std::vector<Particles*>&);
 
 #endif
 

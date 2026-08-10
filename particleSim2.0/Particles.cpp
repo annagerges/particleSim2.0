@@ -15,16 +15,15 @@ const int width = 800 / 3;
 void updatePos(vector<Particles>& part, Spring& s) {
 	for (int index = 0; index < part.size(); index++) {
 		//changes accelaration because the ball is on the spring
-		if (part[index].y <= s.getHeight()) {
-			part[index].a = (((s.getK() / part[index].mass) * -1) * (part[index].y - s.getHeight())) - 9.8;
-
+		if (part[index].getY() <= s.getHeight()) {
+			part[index].setA((((s.getK() / part[index].getMass()) * -1) * (part[index].getY() - s.getHeight())) - 9.8);
 		}
 		else {
-			part[index].a = -9.8;
+			part[index].setA(-9.8);
 		}
-		part[index].vy += part[index].a * 0.01;
-		part[index].y += part[index].vy * 0.01;
-		part[index].x += part[index].vx * 0.01;
+		part[index].setVy(part[index].getVy() + part[index].getA() * 0.01);
+		part[index].setY(part[index].getY() + part[index].getVy() * 0.01);
+		part[index].setX(part[index].getX() + part[index].getVx() * 0.01);
 	}
 }
 
@@ -32,26 +31,26 @@ void updatePos(vector<Particles>& part, Spring& s) {
 void  wallCollis(vector<Particles>& part) {
 	for (int index = 0; index < part.size(); index++) {
 		//if the particle is beyond or colliding with the left edge: reverse its x velocity and change its x position to 1
-		if (part[index].x <= 0) {
-			part[index].vx *= -1;
-			part[index].x = 1;
+		if (part[index].getX() <= 0) {
+			part[index].setVx(part[index].getVx() * -1);
+			part[index].setX(1);
 
 			//if the particle's vx is under 30: increase its x velocity 0.1
-			if (part[index].vx < 30) {
-				part[index].vx += 0.1;
+			if (part[index].getVx() < 30) {
+				part[index].setVx(part[index].getVx() + 0.1);
 			}
 		}
 
 		//if the particle is beyond or colliding with the right edge: reverse its x velocity and change its x position to 799
-		else if (part[index].x >= 800) {
-			part[index].vx *= -1;
-			part[index].x = 799;
+		else if (part[index].getX() >= 800) {
+			part[index].setVx(part[index].getVx() * -1);
+			part[index].setX(799);
 		}
 
 		//if the particle is beyond or colliding with the upper edge: reverse its y velocity and change its y position to 799
-		if (part[index].y >= 800) {
-			part[index].vy *= -1;
-			part[index].y = 799;
+		if (part[index].getY() >= 800) {
+			part[index].setVy(part[index].getVy() * -1);
+			part[index].setY(799);
 		}
 	}
 }
@@ -69,8 +68,8 @@ void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& gr
 
 	//assign every particle a grid cell based on its position
 	for (int index = 0; index < part.size(); index++) {
-		row = part[index].y / width;
-		col = part[index].x / width;
+		row = part[index].getY() / width;
+		col = part[index].getX() / width;
 
 		//safeguards to make sure that every particle gets assigned a valid cell 
 
@@ -88,7 +87,7 @@ void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& gr
 		}
 
 		//add the particle into that cell
-		grid[row][col].push_back(&part[index]);
+		grid[row][col].emplace_back(&part[index]);
 	}
 }
 
@@ -100,36 +99,36 @@ void particleCollis(vector<Particles*>& grid) {
 		for (int index = start + 1; index < grid.size(); index++) {
 
 			//computes distance between both particles
-			d = sqrt(pow(grid[index]->x - grid[start]->x, 2) + pow(grid[index]->y - grid[start]->y, 2));
+			d = sqrt(pow(grid[index]->getX() - grid[start]->getX(), 2) + pow(grid[index]->getY() - grid[start]->getY(), 2));
 
 			//if distance is less than the particle radius * 2: then they collided
 			if (d < 10) {
 
 				//compute dy and dx to figure out if they collided on x or y axis
-				dy = abs(grid[index]->y - grid[start]->y);
-				dx = abs(grid[index]->x - grid[start]->x);
+				dy = abs(grid[index]->getY() - grid[start]->getY());
+				dx = abs(grid[index]->getX() - grid[start]->getX());
 
 				//if they collided on y axis
 				if (dx >= dy) {
 					//if the second particle is higher then the first one
-					if (grid[index]->y >= grid[start]->y) {
+					if (grid[index]->getY() >= grid[start]->getY()) {
 
 						//increase the lower particle's vy by 0.1 if its vy is less than 30, reverse vy of the higher one and slow it down on y axis by 0.1
-						grid[start]->vy += (grid[start]->vy < 30) ? 0.1 : 0;
-						grid[index]->vy *= -1;
-						grid[index]->vy -= 0.1;
+						grid[start]->setVy(grid[start]->getVy() + (grid[start]->getVy() < 30) ? 0.1 : 0);
+						grid[index]->setVy(grid[index]->getVy() * -1);
+						grid[index]->setVy(grid[index]->getVy() - 0.1);
 					}
 					else {
 						//increase the lower particle's vy by 0.1 if its vy is less than 30, reverse vy of the higher one and slow it down on y axis by 0.1
-						grid[index]->vy += (grid[index]->vy < 30) ? 0.1 : 0;
-						grid[start]->vy *= -1;
-						grid[start]->vy -= 0.1;
+						grid[index]->setVy(grid[index]->getVy() + (grid[index]->getVy() < 30) ? 0.1 : 0);
+						grid[start]->setVy(grid[start]->getVy() * -1);
+						grid[start]->setVy(grid[start]->getVy() - 0.1);
 					}
 				}
 				// if it collided on the x axis: reverse the vx of both particles
 				else {
-					grid[start]->vx *= -1;
-					grid[index]->vx *= -1;
+					grid[start]->setVx(grid[start]->getVx() * -1);
+					grid[index]->setVx(grid[index]->getVx() * -1);
 				}
 			}
 		}

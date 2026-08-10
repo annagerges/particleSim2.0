@@ -12,7 +12,6 @@ using namespace std;
 
 //timestep and width of each grid cell
 const float dt = 0.1;
-const int width = 800 / 3;
 
 int main()
 {
@@ -24,40 +23,51 @@ int main()
     random_device myEngine;
 
     //prompts user to enter valid amount of particles
-    cout << "How many particles do you want(10-100): ";
+    cout << "How many particles do you want(100-1000): ";
     cin >> nP;
 
-    int nBox = max(3,(int)sqrt(nP/5));
+    int nBox = max(5,(int)sqrt(nP/5));
     int width = 800 / nBox;
 
-    while (nP < 10 || nP>100) {
+    while (nP < 100 || nP>1000) {
         cout << "\nInvalid Input. Enter a valid amount: ";
         cin >> nP;
     }
 
 
     //creates a vector of particles with the valid size the user specified to keep track of every particle
-    vector<Particles>particles(nP);
+    vector<Particles>particles;
+    particles.reserve(nP);
 
     //the grid (3d vector of Particle pointers) to optimize the program
-    vector<vector<vector<Particles*>>>grid(3, vector<vector<Particles*>>(3));
+    vector<vector<vector<Particles*>>>grid(nBox, vector<vector<Particles*>>(nBox));
+
+    // Pre-reserve space in each grid cell to avoid reallocations
+    int estimatedPerCell = nP / (nBox * nBox) + 2;  // +5 for buffer
+    for (int i = 0; i < nBox; i++) {
+        for (int j = 0; j < nBox; j++) {
+            grid[i][j].reserve(estimatedPerCell);
+        }
+    }
 
     //sets up random number generator for particle position and velocity
     uniform_real_distribution<float>randPos(1, 799);
     uniform_real_distribution<float>randVelo(1, 30);
 
-    for (int index = 0; index < particles.size(); index++) {
+    for (int index = 0; index < nP; index++) {
+        particles.emplace_back();
+
         //Randomly assigns x and y to be from 1 to 799 because having the user decide would be tedious
-        particles[index].x = randPos(myEngine);
-        particles[index].y = randPos(myEngine);
+        particles[index].setX(randPos(myEngine));
+        particles[index].setY(randPos(myEngine));
 
         //Randomly assigns vx and vy to be from 1 to 30
-        particles[index].vx = randVelo(myEngine);
-        particles[index].vy = randVelo(myEngine);
+        particles[index].setVx(randVelo(myEngine));
+        particles[index].setVy(randVelo(myEngine));
 
         //finds grid cell based on particle position
-        row = particles[index].y / width;
-        col = particles[index].x / width;
+        row = particles[index].getY() / width;
+        col = particles[index].getX() / width;
 
         //safeguards to ensure that each particle goes to a valid cell
         if (row < 0) {
@@ -78,7 +88,7 @@ int main()
     }
 
     //set k assuming all of the particles are statically laying on the spring and compressing 0.2m. Mulitply by 5 so that the particles are springy.
-    s.setK(((nP*9.8*particles[0].mass)/0.2)*4);
+    s.setK(((nP*9.8*particles[0].getMass())/0.2)*4);
 
     //sets accumulator to 0
     accumulator = 0;
@@ -107,7 +117,7 @@ int main()
              updatePos(particles, s);
 
              //debugging purposes
-             cout << particles[0].y<<endl;
+             cout << particles[0].getY()<<endl;
 
              wallCollis(particles);
              clearAndFix(particles, grid);
@@ -125,7 +135,6 @@ int main()
             accumulator -= dt;
         }
     }
-
 
     return 0;
 }

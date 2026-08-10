@@ -11,7 +11,7 @@
 using namespace std;
 
 //timestep and width of each grid cell
-const float dt = 0.1;
+const float dt = 0.1f;
 
 int main()
 {
@@ -120,7 +120,7 @@ int main()
              cout << particles[0].getY()<<endl;
 
              wallCollis(particles);
-             clearAndFix(particles, grid);
+             clearAndFix(particles, grid, width);
 
              for (int row = 0; row < grid.size(); row++) {
                  for (int col = 0; col < grid[0].size(); col++) {

@@ -10,11 +10,11 @@ class Particles {
 		float vy;
 		float x;
 		float y;
-		float a = -9.8;
+		float a = -9.8f;
 		float ep;
 		float ek;
 		float em;
-		float mass = 0.5;
+		float mass = 0.5f;
 
 	public:
 
@@ -124,7 +124,7 @@ public:
 //functions
 void updatePos(std::vector<Particles>&, Spring&);
 void wallCollis(std::vector<Particles>&);
-void clearAndFix(std::vector<Particles>&, std::vector<std::vector<std::vector<Particles*>>>&);
+void clearAndFix(std::vector<Particles>&, std::vector<std::vector<std::vector<Particles*>>>&, int);
 void particleCollis(std::vector<Particles*>&);
 
 #endif

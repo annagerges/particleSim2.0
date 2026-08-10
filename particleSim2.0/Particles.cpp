@@ -8,8 +8,7 @@
 
 using namespace std;
 
-const float dt = 0.1;
-const int width = 800 / 3;
+const float dt = 0.1f;
 
 //updates position using euclidean approximation
 void updatePos(vector<Particles>& part, Spring& s) {
@@ -56,7 +55,7 @@ void  wallCollis(vector<Particles>& part) {
 }
 
 //clears and places the updated particles into their correct grid positions
-void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& grid) {
+void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& grid, int width) {
 	int row, col;
 
 	//clear the grid cells
@@ -93,7 +92,7 @@ void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& gr
 
 //checks if particles collided with each other by passing an active grid cell and looping through its particles
 void particleCollis(vector<Particles*>& grid) {
-	float d, dx, dy;
+	float d,dx, dy;
 
 	for (int start = 0; start < grid.size() - 1; start++) {
 		for (int index = start + 1; index < grid.size(); index++) {

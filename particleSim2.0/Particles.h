@@ -60,7 +60,7 @@ class Particles {
 			return y;
 		}
 
-		//setter and getter accelaration
+		//setter and getter acceleration
 		void setA(float num) {
 			a = num;
 		}

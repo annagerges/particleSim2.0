@@ -13,7 +13,7 @@ const float dt = 0.1f;
 //updates position using euclidean approximation
 void updatePos(vector<Particles>& part, Spring& s) {
 	for (int index = 0; index < part.size(); index++) {
-		//changes accelaration because the ball is on the spring
+		//changes acceleration because the ball is on the spring
 		if (part[index].getY() <= s.getHeight()) {
 			part[index].setA((((s.getK() / part[index].getMass()) * -1) * (part[index].getY() - s.getHeight())) - 9.8);
 		}

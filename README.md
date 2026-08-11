@@ -16,7 +16,7 @@ a = -g = -9.8 m/s²
 ```
 F_spring = -k(y - h)
 a_total = -(k/m)(y - h) - g
-accelaration is the force of the spring/mass minus gravity
+acceleration is the force of the spring/mass minus gravity
 ```
 
 where `k` is dynamically calculated based on particle count and assumed compression (0.2 m), scaled by factor of 4 for springiness:
@@ -44,7 +44,7 @@ The simulation uses a dynamically sized grid(sqrt(num of particles/10)+2) of equ
 - **Collision checks**: Only particles in the same grid cell are tested
 - **Grid update**: partial rebuild if any particles move cells via `clearAndFix()` to update the grid and manage resources effectively.
 
-This optimization scales efficiently to 100 particles without performance degradation.
+This optimization scales efficiently to 1000 particles without performance degradation.
 
 ### Collision Detection
 

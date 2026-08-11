@@ -94,14 +94,14 @@ void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& gr
 					oldCell.pop_back();
 					break;
 				}
-		}
+			}
 
 			part[index].setRow(row);
 			part[index].setCol(col);
 
-		grid[row][col].emplace_back(&part[index]);
+			grid[row][col].emplace_back(&part[index]);
 
-	}
+		}
 
 	}
 }
@@ -113,9 +113,9 @@ void particleCollis(vector<Particles*>& grid) {
 	for (int start = 0; start < grid.size() - 1; start++) {
 		for (int index = start + 1; index < grid.size(); index++) {
 
-				//compute dy and dx to figure out if they collided on x or y axis
-				dy = abs(grid[index]->getY() - grid[start]->getY());
-				dx = abs(grid[index]->getX() - grid[start]->getX());
+			//compute dy and dx to figure out if they collided on x or y axis
+			dy = abs(grid[index]->getY() - grid[start]->getY());
+			dx = abs(grid[index]->getX() - grid[start]->getX());
 
 			//if distance^2 is less than the particle radius^2: then they collided. Using squared to budget cpu resources and be accurate at the same time
 			if (dx * dx + dy * dy < 100) {

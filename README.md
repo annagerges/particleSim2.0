@@ -1,9 +1,9 @@
 # Particle System
 
 ## Overview
-A particle simulation engine that uses gravitational dynamics, spring forces, and collision detection using spatial partitioning for efficient computation. The system currently models **10–100 particles** interacting on a 2D grid with energy conservation validation and adaptive timestep processing.
+A particle simulation engine that uses gravitational dynamics, spring forces, and collision detection using spatial partitioning for efficient computation. The system currently models **100–1000 particles** interacting on a 2D grid with energy conservation validation and adaptive timestep processing.
 
-##Physics Model
+## Physics Model
 
 ### Forces and Acceleration
 
@@ -16,7 +16,7 @@ a = -g = -9.8 m/s²
 ```
 F_spring = -k(y - h)
 a_total = -(k/m)(y - h) - g
-accelaration is the force of the spring/mass minus gravity
+acceleration is the force of the spring/mass minus gravity
 ```
 
 where `k` is dynamically calculated based on particle count and assumed compression (0.2 m), scaled by factor of 4 for springiness:
@@ -39,12 +39,12 @@ Updates apply at (`0.01 s` intervals) within each frame for stability.
 
 ### Spatial Partitioning
 
-The simulation uses a **3×3 grid** to reduce collision detection from O(n²) to O(n) for typical particle distributions:
-- **Grid cell width**: 800 / 3 ≈ 267 units
+The simulation uses a dynamically sized grid(sqrt(num of particles/10)+2) of equal dimentions to reduce collision detection from O(n²) to O(n) for typical particle distributions:
+- **Grid cell width**: 800 / cells per row
 - **Collision checks**: Only particles in the same grid cell are tested
-- **Grid update**: Full rebuild each timestep via `clearAndFix()`
+- **Grid update**: partial rebuild if any particles move cells via `clearAndFix()` to update the grid and manage resources effectively.
 
-This optimization scales efficiently to 100 particles without performance degradation.
+This optimization scales efficiently to 1000 particles without performance degradation.
 
 ### Collision Detection
 
@@ -65,7 +65,7 @@ This optimization scales efficiently to 100 particles without performance degrad
 
 Uses `std::chrono::high_resolution_clock` to decouple frame rate from simulation timestep:
 ```
-accumulator += frameDuration
+accumulator += frameDuration.count()
 while (accumulator >= dt) {
     update()
     accumulator -= dt
@@ -80,7 +80,7 @@ Ensures consistent physics independent of frame rate or system load.
 |------|---------|
 | `particleSim2.0.cpp` | Initialization, user input validation, grid setup, main loop |
 | `Particles.cpp` | Physics update, collision detection, grid management |
-| `Particles.h` | Struct and Class definitions (`Particles`, `Spring`), function declarations |
+| `Particles.h` | Class definitions (`Particles`, `Spring`), function declarations |
 
 ### Key Functions
 
@@ -89,17 +89,16 @@ Ensures consistent physics independent of frame rate or system load.
 | `updatePos()` | `void(vector<Particles>&, Spring&)` | Apply forces, update velocity and position |
 | `wallCollis()` | `void(vector<Particles>&)` | Handle boundary collisions |
 | `particleCollis()` | `void(vector<Particles*>&)` | Detect and resolve particle–particle collisions within grid cells with more than 1 particle |
-| `clearAndFix()` | `void(vector<Particles>&, vector<vector<vector<Particles*>>>&)` | Rebuild spatial grid after position updates |
+| `clearAndFix()` | `void(vector<Particles>&, vector<vector<vector<Particles*>>>&, int width)` | Clears and puts any particle that moves cells in accordance to it's current position|
 
 
-## Future Enhancements
--**Optimization**: Handle 100-1000 particles effectively using a quadtree or hashgrid.
+## Coming Soon!!
 - **CSV Export**: Log position, velocity, and energy state to file for post-processing analysis.
 - **Rendering**: Visualize particles and grid using OpenGL or SDL2.
 - **RK4 Integration**: Replace Euler method with 4th-order Runge–Kutta for higher accuracy.
 - **Damping Coefficient**: Make collision damping configurable; validate energy dissipation against expected mechanical loss.
 - **Spring Stiffness Tuning**: Expose `k` scaling factor as command-line parameter.
-- **Benchmarking and validation**
+
 
 ---
 

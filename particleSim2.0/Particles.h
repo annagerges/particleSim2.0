@@ -6,15 +6,22 @@
 //Particle class to keep track of every particle's position, velocity, acceleration, and energy
 class Particles {
 	private:
-		float vx = 0;
+		float vx = 0.0f;
 		float vy;
+
 		float x;
 		float y;
+
 		float a = -9.8f;
+
 		float ep;
 		float ek;
 		float em;
+
 		float mass = 0.5f;
+
+		int cellRow;
+		int cellCol;
 
 	public:
 
@@ -97,6 +104,26 @@ class Particles {
 		float getEm() const {
 			return em;
 		}
+
+		//setter and getter for grid coordinates
+
+		void setRow(int r) {
+			cellRow = r;
+		}
+
+		int getRow() {
+			return cellRow;
+		}
+
+		void setCol(int c) {
+			cellCol = c;
+		}
+
+		int getCol() {
+			return cellCol;
+		}
+
+
 
 };
 

@@ -43,7 +43,7 @@ int main()
     vector<vector<vector<Particles*>>>grid(nBox, vector<vector<Particles*>>(nBox));
 
     // Pre-reserve space in each grid cell to avoid reallocations
-    int estimatedPerCell = nP / (nBox * nBox) + 2;  // +5 for buffer
+    int estimatedPerCell = nP / (nBox * nBox) + 2;  // +2 for buffer
     for (int i = 0; i < nBox; i++) {
         for (int j = 0; j < nBox; j++) {
             grid[i][j].reserve(estimatedPerCell);
@@ -69,19 +69,23 @@ int main()
         row = particles[index].getY() / width;
         col = particles[index].getX() / width;
 
-        //safeguards to ensure that each particle goes to a valid cell
+        int nR = grid.size(), nC = grid[0].size();
+
         if (row < 0) {
             row = 0;
         }
-        if (row > 2) {
-            row = 2;
+        else if (row >= nR) {
+            row = nR - 1;
         }
         if (col < 0) {
             col = 0;
         }
-        if (col > 2) {
-            col = 2;
+        else if (col >= nC) {
+            col = nC - 1;
         }
+
+        particles[index].setRow(row);
+        particles[index].setCol(col);
 
         //puts the particle in the cell
         grid[row][col].push_back(&particles[index]);
@@ -117,7 +121,7 @@ int main()
              updatePos(particles, s);
 
              //debugging purposes
-             cout << particles[0].getY()<<endl;
+             cout << particles[0].getX()<<endl;
 
              wallCollis(particles);
              clearAndFix(particles, grid, width);

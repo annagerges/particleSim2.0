@@ -58,35 +58,51 @@ void  wallCollis(vector<Particles>& part) {
 void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& grid, int width) {
 	int row, col;
 
-	//clear the grid cells
-	for (int row = 0; row < 3; row++) {
-		for (int col = 0; col < 3; col++) {
-			grid[row][col].clear();
-		}
-	}
-
 	//assign every particle a grid cell based on its position
 	for (int index = 0; index < part.size(); index++) {
 		row = part[index].getY() / width;
 		col = part[index].getX() / width;
+
+		int nR = grid.size(), nC = grid[0].size();
 
 		//safeguards to make sure that every particle gets assigned a valid cell 
 
 		if (row < 0) {
 			row = 0;
 		}
-		if (row > 2) {
-			row = 2;
+		else if (row >= nR) {
+			row = nR-1;
 		}
 		if (col < 0) {
 			col = 0;
 		}
-		if (col > 2) {
-			col = 2;
+		else if (col >= nC) {
+			col = nC-1;
 		}
 
-		//add the particle into that cell
+		int r = part[index].getRow(), c = part[index].getCol();
+
+		//if the particle's row or column is different from where it was before in the grid, then it needs to be moved to it's correct cell coordinates
+		if (r != row || c != col) {
+
+			//for readability and to loop though the grid cell faster use a reference for grid[r][c] instead of recalculating it multiple times 
+			vector<Particles*>oldCell = grid[r][c];
+
+			for (int i = 0; i < oldCell.size(); i++) {
+				if (oldCell[i] == &part[index]) {
+					oldCell[i] = oldCell.back();
+					oldCell.pop_back();
+					break;
+				}
+		}
+
+			part[index].setRow(row);
+			part[index].setCol(col);
+
 		grid[row][col].emplace_back(&part[index]);
+
+	}
+
 	}
 }
 
@@ -97,15 +113,12 @@ void particleCollis(vector<Particles*>& grid) {
 	for (int start = 0; start < grid.size() - 1; start++) {
 		for (int index = start + 1; index < grid.size(); index++) {
 
-			//computes distance between both particles
-			d = sqrt(pow(grid[index]->getX() - grid[start]->getX(), 2) + pow(grid[index]->getY() - grid[start]->getY(), 2));
-
-			//if distance is less than the particle radius * 2: then they collided
-			if (d < 10) {
-
 				//compute dy and dx to figure out if they collided on x or y axis
 				dy = abs(grid[index]->getY() - grid[start]->getY());
 				dx = abs(grid[index]->getX() - grid[start]->getX());
+
+			//if distance^2 is less than the particle radius^2: then they collided. Using squared to budget cpu resources and be accurate at the same time
+			if (dx * dx + dy * dy < 100) {
 
 				//if they collided on y axis
 				if (dx >= dy) {

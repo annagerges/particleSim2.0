@@ -86,7 +86,7 @@ void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& gr
 		if (r != row || c != col) {
 
 			//for readability and to loop though the grid cell faster use a reference for grid[r][c] instead of recalculating it multiple times 
-			vector<Particles*>oldCell = grid[r][c];
+			vector<Particles*>&oldCell = grid[r][c];
 
 			for (int i = 0; i < oldCell.size(); i++) {
 				if (oldCell[i] == &part[index]) {

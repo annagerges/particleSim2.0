@@ -21,7 +21,7 @@ acceleration is the force of the spring/mass minus gravity
 
 where `k` is dynamically calculated based on particle count and assumed compression (0.2 m), scaled by factor of 4 for springiness:
 ```
-k = (nP × 9.8 × m / 0.2) × 4
+k = ( 9.8 × m / 0.2) × 4
 Multiplied by 4 for strength and springiness
 ```
 
@@ -49,17 +49,16 @@ This optimization scales efficiently to 1000 particles without performance degra
 ### Collision Detection
 
 #### Particle–Particle Collisions
-- **Trigger**: Euclidean distance `d < 10` units (collision radius = 5 per particle)
-- **Axis determination**: Compare `dx` vs. `dy` to resolve collision along correct axis
+- **Trigger**: Euclidean distance `absDx * absDx + absDy * absDy < 100` units (r^2)
+- **Axis determination**: Compare `|dx|` vs. `|dy|` to resolve collision along correct axis
 - **Response**:
-  - **Y-axis collision**: Reverse `vy`, apply damping (−0.1), boost lower particle if `vy < 30`
-  - **X-axis collision**: Reverse `vx` for both particles
+  - **Y-axis collision**: Swap vy for energy conservation
+  - **X-axis collision**: Swap vx for energy conservation
   - **If X and Y axis are equal**: apply Y-axis collision conditions.
 
 #### Wall Collisions
 - **Bounds**: `[1, 799]` × `[1, 799]`
 - **Response**: Reverse normal velocity component, clamp position to boundary
-- **Energy boost**: Left wall adds `+0.1` to `vx` (if `vx < 30`) to maintain motion without overloading speed.
 
 ### Frame Timing
 
@@ -90,16 +89,7 @@ Ensures consistent physics independent of frame rate or system load.
 | `wallCollis()` | `void(vector<Particles>&)` | Handle boundary collisions |
 | `particleCollis()` | `void(vector<Particles*>&)` | Detect and resolve particle–particle collisions within grid cells with more than 1 particle |
 | `clearAndFix()` | `void(vector<Particles>&, vector<vector<vector<Particles*>>>&, int width)` | Clears and puts any particle that moves cells in accordance to it's current position|
-
-
-## Coming Soon!!
-- **CSV Export**: Log position, velocity, and energy state to file for post-processing analysis.
-- **Rendering**: Visualize particles and grid using OpenGL or SDL2.
-- **RK4 Integration**: Replace Euler method with 4th-order Runge–Kutta for higher accuracy.
-- **Damping Coefficient**: Make collision damping configurable; validate energy dissipation against expected mechanical loss.
-- **Spring Stiffness Tuning**: Expose `k` scaling factor as command-line parameter.
-
-
+| `csvDump()` | `void csvDump(std::vector<Particles>&, std::fstream&, float)` | Adds data to csv file for further analysis|
 ---
 
 **Date**: August 2026  

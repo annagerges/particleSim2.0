@@ -6,6 +6,7 @@
 #include <chrono>
 #include <random>
 #include<limits>
+#include <fstream>
 #include "Particles.h"
 
 using namespace std;
@@ -16,17 +17,19 @@ const float dt = 0.1f;
 int main()
 {
     int nP, row, col;
-    float accumulator;
+    float accumulator, totalTime=0;
     Spring s;
 
 
     random_device myEngine;
 
+    fstream file("EulerParticle.csv", ios::out);
+
     //prompts user to enter valid amount of particles
     cout << "How many particles do you want(100-1000): ";
     cin >> nP;
 
-    int nBox = max(5,(int)sqrt(nP/5));
+    int nBox = max(5,(int)sqrt(nP/5)), stepCount=0;
     int width = 800 / nBox;
 
     while (nP < 100 || nP>1000) {
@@ -94,6 +97,14 @@ int main()
     //set k assuming all of the particles are statically laying on the spring and compressing 0.2m. Mulitply by 5 so that the particles are springy.
     s.setK(((nP*9.8*particles[0].getMass())/0.2)*4);
 
+    //writing k and num of particles into the file for it to be analyzed using python but not seen
+    file << "# nP: " << nP << "\n";
+    file << "# k: " << s.getK() << "\n";
+    file << "# h: " << s.getHeight() << "\n";
+
+    //file rows
+    file << "Particle num,x,y,vx,vy,ay,cellRow,cellCol,time(s)" << "\n";
+
     //sets accumulator to 0
     accumulator = 0;
 
@@ -121,7 +132,7 @@ int main()
              updatePos(particles, s);
 
              //debugging purposes
-             cout << particles[0].getX()<<endl;
+             //cout << particles[0].getX()<<endl;
 
              wallCollis(particles);
              clearAndFix(particles, grid, width);
@@ -137,8 +148,15 @@ int main()
 
             //decrement accumulator by the timestep
             accumulator -= dt;
+            stepCount++;
+            totalTime += dt;
+
+            if (stepCount % 10 == 0) {
+                csvDump(particles, file, totalTime);
+            }
         }
     }
-
+    file.close();
+   
     return 0;
 }

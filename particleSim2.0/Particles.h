@@ -153,6 +153,7 @@ void updatePos(std::vector<Particles>&, Spring&);
 void wallCollis(std::vector<Particles>&);
 void clearAndFix(std::vector<Particles>&, std::vector<std::vector<std::vector<Particles*>>>&, int);
 void particleCollis(std::vector<Particles*>&);
+void csvDump(std::vector<Particles>&, std::fstream&, float);
 
 #endif
 

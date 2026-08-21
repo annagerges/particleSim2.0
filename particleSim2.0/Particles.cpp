@@ -4,6 +4,8 @@
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <string>
+#include <fstream>
 #include "Particles.h"
 
 using namespace std;
@@ -31,25 +33,26 @@ void  wallCollis(vector<Particles>& part) {
 	for (int index = 0; index < part.size(); index++) {
 		//if the particle is beyond or colliding with the left edge: reverse its x velocity and change its x position to 1
 		if (part[index].getX() <= 0) {
-			part[index].setVx(part[index].getVx() * -1);
+			part[index].setVx(abs(part[index].getVx()));
 			part[index].setX(1);
 
-			//if the particle's vx is under 30: increase its x velocity 0.1
-			if (part[index].getVx() < 30) {
-				part[index].setVx(part[index].getVx() + 0.1);
-			}
 		}
 
 		//if the particle is beyond or colliding with the right edge: reverse its x velocity and change its x position to 799
 		else if (part[index].getX() >= 800) {
-			part[index].setVx(part[index].getVx() * -1);
+			part[index].setVx(abs(part[index].getVx()) * -1);
 			part[index].setX(799);
 		}
 
 		//if the particle is beyond or colliding with the upper edge: reverse its y velocity and change its y position to 799
 		if (part[index].getY() >= 800) {
-			part[index].setVy(part[index].getVy() * -1);
+			part[index].setVy(abs(part[index].getVy()) * -1);
 			part[index].setY(799);
+		}
+		// if the particle is beyond or colliding with the floor: reverse its y velocity and clamp it
+		else if (part[index].getY() <= 1) {
+			part[index].setVy(abs(part[index].getVy()));
+			part[index].setY(1);
 		}
 	}
 }
@@ -108,42 +111,49 @@ void clearAndFix(vector<Particles>& part, vector<vector<vector<Particles*>>>& gr
 
 //checks if particles collided with each other by passing an active grid cell and looping through its particles
 void particleCollis(vector<Particles*>& grid) {
-	float d,dx, dy;
+	float d, dx, dy;
 
 	for (int start = 0; start < grid.size() - 1; start++) {
 		for (int index = start + 1; index < grid.size(); index++) {
 
 			//compute dy and dx to figure out if they collided on x or y axis
-			dy = abs(grid[index]->getY() - grid[start]->getY());
-			dx = abs(grid[index]->getX() - grid[start]->getX());
+			dy = grid[index]->getY() - grid[start]->getY();
+			dx = grid[index]->getX() - grid[start]->getX();
+
+			//absolute distance
+			float absDx = abs(dx);
+			float absDy = abs(dy);
 
 			//if distance^2 is less than the particle radius^2: then they collided. Using squared to budget cpu resources and be accurate at the same time
-			if (dx * dx + dy * dy < 100) {
+			if (absDx * absDx + absDy * absDy < 100) {
 
-				//if they collided on y axis
-				if (dx >= dy) {
-					//if the second particle is higher then the first one
-					if (grid[index]->getY() >= grid[start]->getY()) {
+				// Calculate relative velocity
+				float dvx = grid[index]->getVx() - grid[start]->getVx();
+				float dvy = grid[index]->getVy() - grid[start]->getVy();
 
-						//increase the lower particle's vy by 0.1 if its vy is less than 30, reverse vy of the higher one and slow it down on y axis by 0.1
-						grid[start]->setVy(grid[start]->getVy() + (grid[start]->getVy() < 30) ? 0.1 : 0);
-						grid[index]->setVy(grid[index]->getVy() * -1);
-						grid[index]->setVy(grid[index]->getVy() - 0.1);
+				//only swap velo if they are moving towards eachother. Determines if they are pointing to eachother and acts accordingly
+				if (dx * dvx + dy * dvy < 0) {
+
+					if (absDx <= absDy) {
+						float tempVy = grid[start]->getVy();
+						grid[start]->setVy(grid[index]->getVy());
+						grid[index]->setVy(tempVy);
 					}
 					else {
-						//increase the lower particle's vy by 0.1 if its vy is less than 30, reverse vy of the higher one and slow it down on y axis by 0.1
-						grid[index]->setVy(grid[index]->getVy() + (grid[index]->getVy() < 30) ? 0.1 : 0);
-						grid[start]->setVy(grid[start]->getVy() * -1);
-						grid[start]->setVy(grid[start]->getVy() - 0.1);
+						float tempVx = grid[start]->getVx();
+						grid[start]->setVx(grid[index]->getVx());
+						grid[index]->setVx(tempVx);
 					}
-				}
-				// if it collided on the x axis: reverse the vx of both particles
-				else {
-					grid[start]->setVx(grid[start]->getVx() * -1);
-					grid[index]->setVx(grid[index]->getVx() * -1);
 				}
 			}
 		}
 	}
 }
 
+//saves particle state into csv file
+void csvDump(vector<Particles>& part, std::fstream& file, float time) {
+	for (int index = 0; index < part.size(); index++) {
+		file << to_string(index + 1) << "," << to_string(part[index].getX()) << "," << to_string(part[index].getY()) << "," << to_string(part[index].getVx())
+			<< "," << to_string(part[index].getVy()) << "," << to_string(part[index].getA()) << "," << "," << to_string(part[index].getRow()) << "," << to_string(part[index].getCol()) << ", " << to_string(time) << "\n";
+	}
+}

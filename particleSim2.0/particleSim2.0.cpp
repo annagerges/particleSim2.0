@@ -95,7 +95,7 @@ int main()
     }
 
     //set k assuming all of the particles are statically laying on the spring and compressing 0.2m. Mulitply by 5 so that the particles are springy.
-    s.setK(((nP*9.8*particles[0].getMass())/0.2)*4);
+    s.setK(((9.8*particles[0].getMass())/0.2)*4);
 
     //writing k and num of particles into the file for it to be analyzed using python but not seen
     file << "# nP: " << nP << "\n";
